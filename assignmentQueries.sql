@@ -15,6 +15,17 @@ LEFT JOIN Application.People AS P
 ON C.PrimaryContactPersonID = P.PersonID
 AND P.PhoneNumber = C.PhoneNumber
 
+--Question 3
+SELECT C.CustomerName FROM Sales.Customers AS C WHERE C.CustomerID IN
+(
+	SELECT DISTINCT(after2016transactions.CustomerID) FROM Sales.CustomerTransactions AS after2016transactions 
+		WHERE after2016transactions.TransactionDate > '2016-01-01' AND after2016transactions.CustomerID NOT IN
+		(
+			SELECT before2016transactions.CustomerID FROM Sales.CustomerTransactions AS before2016transactions 
+			WHERE before2016transactions.TransactionDate < '2016-01-01'
+		)
+)
+
 
 
 
