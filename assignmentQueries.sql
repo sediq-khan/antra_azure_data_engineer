@@ -26,7 +26,12 @@ SELECT C.CustomerName FROM Sales.Customers AS C WHERE C.CustomerID IN
 		)
 )
 
-
+--Question 4
+SELECT Items.StockItemName, SUM(Transactions.Quantity) FROM Warehouse.StockItems AS Items 
+LEFT JOIN Warehouse.StockItemTransactions AS Transactions
+ON Items.StockItemID = Transactions.StockItemID
+WHERE (Transactions.TransactionOccurredWhen >='2013-01-01' AND Transactions.TransactionOccurredWhen <'2013-12-31')
+GROUP BY Items.StockItemName
 
 
 
