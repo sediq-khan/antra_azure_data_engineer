@@ -33,6 +33,9 @@ ON Items.StockItemID = Transactions.StockItemID
 WHERE (Transactions.TransactionOccurredWhen >='2013-01-01' AND Transactions.TransactionOccurredWhen <'2013-12-31')
 GROUP BY Items.StockItemName
 
+--Question 5
+SELECT Stocks.StockItemName, Stocks.SearchDetails FROM Warehouse.StockItems AS Stocks WHERE LEN(Stocks.SearchDetails) >= 10
+
 
 
 
