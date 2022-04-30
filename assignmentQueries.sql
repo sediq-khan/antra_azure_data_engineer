@@ -45,6 +45,17 @@ INNER JOIN Application.Cities AS Cities ON Cities.CityID = Customers.DeliveryCit
 INNER JOIN Application.StateProvinces AS States ON States.StateProvinceID = Cities.StateProvinceID
 GROUP BY States.StateProvinceName;
 
+--Question 8
+SELECT States.StateProvinceName, MONTH(Invoices.ConfirmedDeliveryTime) AS DeliveryMonth,
+AVG(DATEDIFF(day, Orders.OrderDate, Invoices.ConfirmedDeliveryTime))
+AS AverageDuration FROM Sales.Invoices AS Invoices 
+INNER JOIN Sales.Orders AS Orders ON (Invoices.OrderID = Orders.OrderID AND Invoices.CustomerID = Orders.CustomerID)
+INNER JOIN Sales.Customers AS Customers ON Invoices.CustomerID = Customers.CustomerID
+INNER JOIN Application.Cities AS Cities ON Cities.CityID = Customers.DeliveryCityID
+INNER JOIN Application.StateProvinces AS States ON States.StateProvinceID = Cities.StateProvinceID
+GROUP BY States.StateProvinceName,  MONTH(Invoices.ConfirmedDeliveryTime)
+ORDER BY States.StateProvinceName, DeliveryMonth;
+
 
 
 
