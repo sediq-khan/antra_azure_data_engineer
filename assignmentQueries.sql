@@ -189,6 +189,8 @@ WHERE YEAR(Invoices.InvoiceDate) = 2016
 --GROUP BY Customers.CustomerID
 --HAVING InvoiceLines.Quantity <=10;
 
+--Question 10
+SELECT * FROM Application.Cities FOR SYSTEM_TIME AS OF '2015-01-01 00:00:00';
 
 
 
