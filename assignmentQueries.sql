@@ -200,4 +200,6 @@ WHERE Orders.OrderID in
 	WHERE JSON_QUERY(Invoices.ReturnedDeliveryData, '$."Events"') LIKE N'%not present%'
 )
 
-
+--Question 16
+SELECT * FROM Warehouse.StockItems AS StockItems
+WHERE JSON_QUERY(StockItems.CustomFields) LIKE N'%China%'
