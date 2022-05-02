@@ -72,6 +72,123 @@ INNER JOIN Sales.Invoices ON InvoiceLines.InvoiceID = Sales.Invoices.InvoiceID A
 GROUP BY StockItems.StockItemName
 ORDER BY TotalSale ASC;
 
+--Question 10
+--Partially done but not completed
+
+-- INVOICES AND INVOICE LINES
+GO
+SELECT TOP 10 Invoices.CustomerID, SUM(InvoiceLines.Quantity) AS TotalMugSold FROM Sales.Invoices AS Invoices
+INNER JOIN Sales.InvoiceLines AS InvoiceLines ON (Invoices.InvoiceID = InvoiceLines.InvoiceID)
+INNER JOIN Sales.Customers AS Customers ON (Customers.CustomerID = Invoices.CustomerID)
+INNER JOIN Sales.Customers AS CustomersPrimary ON (Customers.PrimaryContactPersonID = CustomersPrimary.CustomerID)
+WHERE YEAR(Invoices.InvoiceDate) = 2016 AND InvoiceLines.Description LIKE '%mug%' 
+GROUP BY Invoices.CustomerID
+--HAVING TotalMugSold <= 10
+GO
+
+
+SELECT Warehouse.StockItems.StockItemName FROM Warehouse.StockItems WHERE Warehouse.StockItems.StockItemName LIKE '%MUG%' GROUP BY Warehouse.StockItems.StockItemName;
+-- 10 mugs per person
+SELECT TOP 10 
+	Customers.CustomerID, Customers.CustomerName, Customers.PhoneNumber, CustomersPrimary.CustomerID AS PrimaryContactPersonID,
+	CustomersPrimary.CustomerName AS PrimaryContactPersonName --, SUM(InvoiceLines.Quantity) AS TotalMugsSold 
+FROM Sales.Customers AS Customers
+INNER JOIN Sales.Customers AS CustomersPrimary ON (Customers.PrimaryContactPersonID = CustomersPrimary.CustomerID)
+INNER JOIN Sales.Invoices as Invoices ON (Customers.CustomerID = Invoices.CustomerID) 
+AND YEAR(Invoices.InvoiceDate) = 2016 AND
+Invoices.InvoiceID IN 
+(
+	SELECT InvoiceLines.InvoiceID FROM Sales.InvoiceLines AS InvoiceLines
+	WHERE InvoiceLines.Description LIKE '%mug%'
+);
+--INNER JOIN Sales.InvoiceLines AS InvoiceLines ON (Invoices.InvoiceID = InvoiceLines.InvoiceID)
+--GROUP BY Customers.CustomerID;
+--(
+--	SELECT Invoices.CustomerID AS TotalMugsSold FROM Sales.Invoices AS Invoices
+--	INNER JOIN Sales.InvoiceLines AS InvoiceLines 
+--	ON (Invoices.InvoiceID = InvoiceLines.InvoiceID) 
+--	WHERE YEAR(Invoices.InvoiceDate) = 2016 AND InvoiceLines.Description LIKE '%mug%'
+--	GROUP BY Invoices.CustomerID
+--	HAVING InvoiceLines.Quantity <=10
+--);
+
+
+--still not working
+SELECT TOP 10 
+	Customers.CustomerID, Customers.CustomerName, Customers.PhoneNumber, CustomersPrimary.CustomerID AS PrimaryContactPersonID,
+	CustomersPrimary.CustomerName AS PrimaryContactPersonName --, SUM(InvoiceLines.Quantity) AS TotalMugsSold 
+FROM Sales.Customers AS Customers
+INNER JOIN Sales.Customers AS CustomersPrimary ON (Customers.PrimaryContactPersonID = CustomersPrimary.CustomerID)
+INNER JOIN Sales.Invoices as Invoices ON (Customers.CustomerID = Invoices.CustomerID)
+INNER JOIN Sales.InvoiceLines AS InvoiceLines ON (Invoices.InvoiceID = InvoiceLines.InvoiceID)
+WHERE YEAR(Invoices.InvoiceDate) = 2016 AND InvoiceLines.Description LIKE '%mug%';
+--GROUP BY Customers.CustomerID;
+--(
+--	SELECT Invoices.CustomerID AS TotalMugsSold FROM Sales.Invoices AS Invoices
+--	INNER JOIN Sales.InvoiceLines AS InvoiceLines 
+--	ON (Invoices.InvoiceID = InvoiceLines.InvoiceID) 
+--	WHERE YEAR(Invoices.InvoiceDate) = 2016 AND InvoiceLines.Description LIKE '%mug%'
+--	GROUP BY Invoices.CustomerID
+--	HAVING InvoiceLines.Quantity <=10
+--);
+-- still not working
+SELECT TOP 10 
+	Customers.CustomerID , Customers.CustomerName, Customers.PhoneNumber, CustomersPrimary.CustomerID AS PrimaryContactPersonID,
+	CustomersPrimary.CustomerName AS PrimaryContactPersonName --, COUNT(InvoiceLines.Quantity) AS TotalMugsSold 
+FROM Sales.Customers AS Customers
+INNER JOIN Sales.Customers AS CustomersPrimary ON (Customers.PrimaryContactPersonID = CustomersPrimary.CustomerID)
+INNER JOIN Sales.Invoices AS Invoices ON (Customers.CustomerID = Invoices.CustomerID) WHERE Customers.CustomerID IN
+(
+	SELECT Invoices.CustomerID, SUM(InvoiceLines.Quantity) AS TotalMugsSold FROM Sales.Invoices AS Invoices
+	INNER JOIN Sales.InvoiceLines AS InvoiceLines 
+	ON (Invoices.InvoiceID = InvoiceLines.InvoiceID) 
+	WHERE YEAR(Invoices.InvoiceDate) = 2016 AND InvoiceLines.Description LIKE '%mug%'
+	GROUP BY Invoices.CustomerID
+	--HAVING InvoiceLines.Quantity <=10
+);
+--GROUP BY Customers.CustomerID
+--HAVING InvoiceLines.Quantity <=10;
+
+
+-- still not working
+SELECT TOP 10 
+	Customers.CustomerID , Customers.CustomerName, Customers.PhoneNumber, CustomersPrimary.CustomerID AS PrimaryContactPersonID,
+	CustomersPrimary.CustomerName AS PrimaryContactPersonName --, COUNT(InvoiceLines.Quantity) AS TotalMugsSold 
+FROM Sales.Customers AS Customers
+INNER JOIN Sales.Customers AS CustomersPrimary ON (Customers.PrimaryContactPersonID = CustomersPrimary.CustomerID)
+WHERE Customers.CustomerID IN
+(
+	SELECT Invoices.CustomerID, SUM(InvoiceLines.Quantity) AS TotalMugsSold FROM Sales.Invoices AS Invoices
+	INNER JOIN Sales.InvoiceLines AS InvoiceLines 
+	ON (Invoices.InvoiceID = InvoiceLines.InvoiceID) 
+	WHERE YEAR(Invoices.InvoiceDate) = 2016 AND InvoiceLines.Description LIKE '%mug%'
+	GROUP BY Invoices.CustomerID
+	--HAVING InvoiceLines.Quantity <=10
+);
+--GROUP BY Customers.CustomerID
+--HAVING InvoiceLines.Quantity <=10;
+
+-- works but 10 mugs per person is not taken into consideration
+SELECT TOP 10 
+	Customers.CustomerID , Customers.CustomerName, Customers.PhoneNumber, CustomersPrimary.CustomerID AS PrimaryContactPersonID,
+	CustomersPrimary.CustomerName AS PrimaryContactPersonName --, COUNT(InvoiceLines.Quantity) AS TotalMugsSold 
+FROM Sales.Customers AS Customers
+LEFT JOIN Sales.Customers AS CustomersPrimary ON (Customers.PrimaryContactPersonID = CustomersPrimary.CustomerID)
+WHERE Customers.CustomerID IN
+(
+	SELECT Invoices.CustomerID FROM Sales.Invoices AS Invoices
+	WHERE YEAR(Invoices.InvoiceDate) = 2016 AND Invoices.InvoiceID IN
+	(
+		SELECT InvoiceLines.InvoiceID FROM Sales.InvoiceLines InvoiceLines WHERE InvoiceLines.Description LIKE '%mug%'
+	)
+)
+
+INNER JOIN Sales.Invoices AS Invoices ON (Customers.CustomerID = Invoices.CustomerID)
+INNER JOIN Sales.InvoiceLines AS InvoiceLines ON (Invoices.InvoiceID = InvoiceLines.InvoiceID AND InvoiceLines.Description LIKE '%mug%')
+WHERE YEAR(Invoices.InvoiceDate) = 2016
+--GROUP BY Customers.CustomerID
+--HAVING InvoiceLines.Quantity <=10;
+
 
 
 
