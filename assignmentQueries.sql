@@ -56,6 +56,22 @@ INNER JOIN Application.StateProvinces AS States ON States.StateProvinceID = Citi
 GROUP BY States.StateProvinceName,  MONTH(Invoices.ConfirmedDeliveryTime)
 ORDER BY States.StateProvinceName, DeliveryMonth;
 
+--Question 9
+--These two queries have to be combined to get the end result.
+--Names of Items and Total Purchase in 2015
+SELECT TOP 1 StockItems.StockItemName, SUM(OrderLines.ReceivedOuters) AS TotalPurchase FROM Purchasing.PurchaseOrderLines AS OrderLines
+INNER JOIN Warehouse.StockItems AS StockItems ON (OrderLines.StockItemID = StockItems.StockItemID)
+WHERE YEAR(OrderLines.LastReceiptDate ) = 2015
+GROUP BY StockItems.StockItemName
+ORDER BY TotalPurchase ASC;
+
+--Names of Items and Total Sales in 2015
+SELECT TOP 1 StockItems.StockItemName, SUM(InvoiceLines.Quantity) AS TotalSale FROM Warehouse.StockItems AS StockItems
+INNER JOIN Sales.InvoiceLines AS InvoiceLines ON InvoiceLines.StockItemID = StockItems.StockItemID
+INNER JOIN Sales.Invoices ON InvoiceLines.InvoiceID = Sales.Invoices.InvoiceID AND YEAR(Sales.Invoices.InvoiceDate) = 2015
+GROUP BY StockItems.StockItemName
+ORDER BY TotalSale ASC;
+
 
 
 
