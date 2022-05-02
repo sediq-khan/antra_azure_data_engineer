@@ -192,5 +192,12 @@ WHERE YEAR(Invoices.InvoiceDate) = 2016
 --Question 10
 SELECT * FROM Application.Cities FOR SYSTEM_TIME AS OF '2015-01-01 00:00:00';
 
+--Question 15
+SELECT * FROM Sales.Orders AS Orders
+WHERE Orders.OrderID in
+(
+	SELECT Invoices.OrderID FROM Sales.Invoices AS Invoices
+	WHERE JSON_QUERY(Invoices.ReturnedDeliveryData, '$."Events"') LIKE N'%not present%'
+)
 
 
