@@ -203,3 +203,14 @@ WHERE Orders.OrderID in
 --Question 16
 SELECT * FROM Warehouse.StockItems AS StockItems
 WHERE JSON_QUERY(StockItems.CustomFields) LIKE N'%China%'
+
+--Question 17
+SELECT 
+	JSON_VALUE(StockItems.CustomFields,'$.CountryOfManufacture') AS Country,
+	StockItems.StockItemName AS StockItemName, SUM(StockItemTransactions.Quantity)
+FROM Warehouse.StockItems AS StockItems
+INNER JOIN Warehouse.StockItemTransactions AS StockItemTransactions ON (StockItems.StockItemID = StockItemTransactions.StockItemID)
+WHERE YEAR( StockItemTransactions.TransactionOccurredWhen) = 2015
+GROUP BY JSON_VALUE(StockItems.CustomFields,'$.CountryOfManufacture'), StockItemName
+ORDER BY JSON_VALUE(StockItems.CustomFields,'$.CountryOfManufacture'), StockItemName;
+
