@@ -232,3 +232,22 @@ FROM TotalStockItemSale
 GROUP BY TotalStockItemSale.StockGroupNames, TotalStockItemSale.SalesYear
 ORDER BY TotalStockItemSale.StockGroupNames, TotalStockItemSale.SalesYear
 GO
+
+--Question 19
+GO
+IF EXISTS(SELECT 1 FROM SYS.views WHERE NAME='TotalStockItemSaleOrdered' AND  TYPE='v')
+DROP VIEW TotalStockItemSaleOrdered
+GO
+CREATE VIEW TotalStockItemSaleOrdered AS
+SELECT StockGroups.StockGroupName AS StockGroupNames , YEAR(OrderLines.PickingCompletedWhen) AS SalesYear, OrderLines.Quantity AS TotalSales 
+FROM Sales.OrderLines AS OrderLines
+INNER JOIN Warehouse.StockItems AS StockItems ON (OrderLines.StockItemID = StockItems.StockItemID)
+INNER JOIN Warehouse.StockItemStockGroups AS StockItemStockGroups ON (StockItems.StockItemID = StockItemStockGroups.StockItemID)
+INNER JOIN Warehouse.StockGroups AS StockGroups ON (StockItemStockGroups.StockGroupID = StockGroups.StockGroupID)
+WHERE YEAR(OrderLines.PickingCompletedWhen) IS NOT NULL
+GO
+SELECT TotalStockItemSaleOrdered.SalesYear, TotalStockItemSaleOrdered.StockGroupNames, SUM(TotalStockItemSaleOrdered.TotalSales)  
+FROM TotalStockItemSaleOrdered
+GROUP BY TotalStockItemSaleOrdered.SalesYear, TotalStockItemSaleOrdered.StockGroupNames
+ORDER BY TotalStockItemSaleOrdered.SalesYear, TotalStockItemSaleOrdered.StockGroupNames
+GO
