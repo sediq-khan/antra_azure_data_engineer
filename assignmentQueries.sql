@@ -362,3 +362,42 @@ GO
 DECLARE @UserDate DATE
 SET @UserDate = '2013-01-01'
 EXECUTE usp_InsertOrders @OrderDatePara = @UserDate
+
+--Question 22
+USE WideWorldImporters
+
+DROP TABLE IF EXISTS ods.StockItems
+
+CREATE TABLE ods.StockItems(StockItemID INT PRIMARY KEY, StockItemName CHAR(180), SupplierID INT, ColorID INT, UnitPackageID INT, OuterPackageID INT, Brand CHAR(180), Size CHAR(180), LeadTimeDays INT, QuantityPerOuter INT, IsChillerStock BIT, Barcode CHAR(180), TaxRate DECIMAL(20,4), UnitPrice DECIMAL(20,4), RecommendedRetailPrice DECIMAL(20,2), TypicalWeightBeforeUnit DECIMAL(20,3), MarketingComments CHAR(2000), InternalComments CHAR(2000), CountryOfManufacture CHAR(180), Range INT NOT NULL, Shelflife INT NOT NULL, 	
+	CONSTRAINT OuterPackages FOREIGN KEY (OuterPackageID) REFERENCES Warehouse.PackageTypes (PackageTypeID),
+	CONSTRAINT UnitPackages FOREIGN KEY (UnitPackageID) REFERENCES Warehouse.PackageTypes (PackageTypeID),
+	CONSTRAINT Suppliers FOREIGN KEY (SupplierID) REFERENCES Purchasing.Suppliers (SupplierID),
+	CONSTRAINT Colors FOREIGN KEY (ColorID) REFERENCES Warehouse.Colors (ColorID),
+);
+INSERT INTO ods.StockItems
+SELECT StockItemID, 
+	StockItemName, 
+	SupplierID, 
+	ColorID, 
+	UnitPackageID, 
+	OuterPackageID, 
+	Brand, 
+	Size, 
+	LeadTimeDays, 
+	QuantityPerOuter, 
+	IsChillerStock, 
+	Barcode, 
+	TaxRate, 
+	UnitPrice, 
+	RecommendedRetailPrice, 
+	TypicalWeightPerUnit, 
+	MarketingComments, 
+	InternalComments, 
+	JSON_VALUE(CustomFields, '$."CountryOfManufacture"'), 
+	DATEDIFF(DAY, ValidFrom, ValidTo), 
+	DATEDIFF(MONTH, ValidFrom, ValidTo)
+FROM Warehouse.StockItems;
+GO
+
+select * from ods.StockItems;
+select * from Warehouse.StockItems;
