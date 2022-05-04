@@ -251,3 +251,45 @@ FROM TotalStockItemSaleOrdered
 GROUP BY TotalStockItemSaleOrdered.SalesYear, TotalStockItemSaleOrdered.StockGroupNames
 ORDER BY TotalStockItemSaleOrdered.SalesYear, TotalStockItemSaleOrdered.StockGroupNames
 GO
+
+--Question 20
+USE WideWorldImporters
+
+IF OBJECT_ID (N'dbo.ufnCalcTotalOfInvoice', N'FN') IS NOT NULL  
+    DROP FUNCTION ufnCalcTotalOfInvoice;    
+GO
+CREATE FUNCTION dbo.ufnCalcTotalOfInvoice(@orderID INT)  
+RETURNS DECIMAL(5,2)
+AS   
+BEGIN  
+	DECLARE @RowCnt INT;
+	DECLARE @TotalUnitIntoQuanity DECIMAL(5,2)
+	DECLARE @TotalTax DECIMAL(5,2)
+	DECLARE @INTERIMVAL DECIMAL(5,2)
+	DECLARE @Quantity DECIMAL(5,2)
+	DECLARE @UnitPrice DECIMAL(5,2)
+	DECLARE @TaxRate DECIMAL(5,2)
+	DECLARE @TotalPrice DECIMAL(5,2)
+	SET @TotalUnitIntoQuanity = 0
+	SET @TotalTax = 0
+	SET @TotalPrice = 0
+	SELECT @RowCnt = COUNT(OrderLines.OrderLineID) FROM Sales.OrderLines AS OrderLines WHERE OrderLines.OrderID = @orderID
+	WHILE @RowCnt >= 0
+	BEGIN
+		SELECT 
+			@Quantity = OrderLines.Quantity,
+			@UnitPrice = OrderLines.UnitPrice,
+			@TaxRate = OrderLines.TaxRate
+		FROM Sales.OrderLines AS OrderLines WHERE OrderLines.OrderID = @orderID
+		SET @INTERIMVAL = (@Quantity * @UnitPrice * @TaxRate)/100
+		SET @TotalTax = @TotalTax + @INTERIMVAL
+		SET @TotalUnitIntoQuanity = @TotalUnitIntoQuanity + (@Quantity * @UnitPrice)
+		SET @TotalPrice = @TotalPrice + @TotalTax + @TotalUnitIntoQuanity
+		SET @TotalUnitIntoQuanity = 0
+		SET @INTERIMVAL = 0
+		SET @TotalTax = 0
+		SET @RowCnt = @RowCnt - 1
+	END
+    RETURN @TotalPrice
+END; 
+GO
