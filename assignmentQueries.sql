@@ -293,3 +293,72 @@ BEGIN
     RETURN @TotalPrice
 END; 
 GO
+
+--Question 21
+USE WideWorldImporters
+
+-- Verify that the stored procedure does not exist.  
+IF OBJECT_ID ( N'usp_InsertOrders', N'P' ) IS NOT NULL   
+    DROP PROCEDURE usp_InsertOrders;
+
+GO  
+-- Create procedure to retrieve error information.  
+CREATE PROCEDURE usp_InsertOrders @OrderDatePara DATE
+AS  
+	DECLARE @OrderDate DATE 
+	SET @OrderDate = @OrderDatePara
+	GO
+		DROP TABLE IF EXISTS Ods.Orders
+		DROP SCHEMA IF EXISTS Ods
+	GO
+	GO
+		CREATE SCHEMA Ods
+	GO
+	GO
+		CREATE TABLE Ods.Orders (OrderID INT NOT NULL PRIMARY KEY IDENTITY, OrderDate DATE NOT NULL, OrderTotal INT NOT NULL)
+	GO
+	-- SET XACT_ABORT ON will cause the transaction to be uncommittable  
+	-- when the constraint violation occurs.   
+	DECLARE @TotalOrders INT
+	SELECT @TotalOrders = COUNT(Orders.OrderID) FROM Sales.Orders AS Orders WHERE Orders.OrderDate = @OrderDatePara --'''+CONVERT(nvarchar, @OrderDate)+'''
+	SET XACT_ABORT ON;
+	BEGIN TRY
+		BEGIN TRANSACTION
+			INSERT INTO Ods.Orders (OrderID, OrderDate, OrderTotal)
+			SELECT Orders.OrderID, Orders.OrderDate, @TotalOrders
+			FROM Sales.Orders AS Orders
+			WHERE Orders.OrderDate = @OrderDatePara --'''+CONVERT(nvarchar, @OrderDate)+''';
+		COMMIT TRANSACTION
+	END TRY
+	BEGIN CATCH
+		-- Test XACT_STATE:  
+        -- If 1, the transaction is committable.  
+        -- If -1, the transaction is uncommittable and should   
+        --     be rolled back.  
+        -- XACT_STATE = 0 means that there is no transaction and  
+        --     a commit or rollback operation would generate an error.  
+  
+		-- Test whether the transaction is uncommittable.  
+		IF (XACT_STATE()) = -1  
+		BEGIN  
+			PRINT  
+				N'The transaction is in an uncommittable state.' +  
+				'Rolling back transaction.'  
+			ROLLBACK TRANSACTION;  
+		END;  
+  
+		-- Test whether the transaction is committable.
+		-- You may want to commit a transaction in a catch block if you want to commit changes to statements that ran prior to the error.
+		IF (XACT_STATE()) = 1  
+		BEGIN  
+			PRINT  
+				N'The transaction is committable.' +  
+				'Committing transaction.'  
+			COMMIT TRANSACTION;     
+		END;  
+	END CATCH
+GO
+
+DECLARE @UserDate DATE
+SET @UserDate = '2013-01-01'
+EXECUTE usp_InsertOrders @OrderDatePara = @UserDate
