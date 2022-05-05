@@ -495,4 +495,14 @@ INSERT INTO Purchasing.PurchaseOrders (SupplierID, OrderDate, DeliveryMethodID, 
 	IsOrderFinalized, LastEditedBy) VALUES 
 	(@Supplier, @OrderDate, 1, @ExpectedDeliveryDate, @SupplierReference, 6, 1, 6)
 
+--Question 25
+--This might not work depending on the security settings of the servers
+DECLARE @sql varchar(1000)
+SET @sql = 'bcp "SELECT (SELECT StockGroupNames, SalesYear, SUM(TotalSales) AS TotalSale' +
+    'FOR JSON PATH, INCLUDE_NULL_VALUES, WITHOUT_ARRAY_WRAPPER) ' +
+    'FROM dbo.TotalStockItemSale AS TotalStockItemSale
+GROUP BY StockGroupNames, SalesYear" ' +
+    'queryout  "F:\Jobs\Azure Data Engineering\Assignment\ViewToJSON.json" ' + 
+    '-c -S MACWIN2 -d WideWorldImporters -T'
+EXEC sys.XP_CMDSHELL @sql
 
