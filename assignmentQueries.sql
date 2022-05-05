@@ -399,5 +399,100 @@ SELECT StockItemID,
 FROM Warehouse.StockItems;
 GO
 
-select * from ods.StockItems;
-select * from Warehouse.StockItems;
+--Question 24
+USE WideWorldImporters
+
+DECLARE @jsonInfo NVARCHAR(MAX)
+DECLARE @StockItemName NVARCHAR(32)
+DECLARE @Supplier INT
+DECLARE @UnitPackageId INT
+DECLARE @OuterPackageId INT
+DECLARE @Brand NVARCHAR(32)
+DECLARE @LeadTimeDays INT
+DECLARE @QuantityPerOuter INT
+DECLARE @TaxRate INT
+DECLARE @UnitPrice DECIMAL(10,2)
+DECLARE @RecommendedRetailPrice DECIMAL(10,2)
+DECLARE @TypicalWeightPerUnit DECIMAL(10,2)
+DECLARE @CountryOfManufacture NVARCHAR(32)
+DECLARE @Range NVARCHAR(32)
+DECLARE @OrderDate NVARCHAR(32)
+DECLARE @DeliveryMethod NVARCHAR(32)
+DECLARE @ExpectedDeliveryDate NVARCHAR(32)
+DECLARE @SupplierReference NVARCHAR(32)
+
+SET @jsonInfo=N'
+{
+   "PurchaseOrders":[
+      {
+         "StockItemName":"Panzer Video Game",
+         "Supplier":"7",
+         "UnitPackageId":"1",
+         "OuterPackageId":"6",
+         "Brand":"EA Sports",
+         "LeadTimeDays":"5",
+         "QuantityPerOuter":"1",
+         "TaxRate":"6",
+         "UnitPrice":"59.99",
+         "RecommendedRetailPrice":"69.99",
+         "TypicalWeightPerUnit":"0.5",
+         "CountryOfManufacture":"Canada",
+         "Range":"Adult",
+         "OrderDate":"2018-01-01",
+         "DeliveryMethod":"Post",
+         "ExpectedDeliveryDate":"2018-02-02",
+         "SupplierReference":"WWI2308"
+      },
+      {
+         "StockItemName":"Panzer Video Game",
+         "Supplier":"5",
+         "UnitPackageId":"1",
+         "OuterPackageId":"7",
+         "Brand":"EA Sports",
+         "LeadTimeDays":"5",
+         "QuantityPerOuter":"1",
+         "TaxRate":"6",
+         "UnitPrice":"59.99",
+         "RecommendedRetailPrice":"69.99",
+         "TypicalWeightPerUnit":"0.5",
+         "CountryOfManufacture":"Canada",
+         "Range":"Adult",
+         "OrderDate":"2018-01-025",
+         "DeliveryMethod":"Post",
+         "ExpectedDeliveryDate":"2018-02-02",
+         "SupplierReference":"269622390"
+      }
+   ]
+}';
+SET @StockItemName=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].StockItemName');
+SET @Supplier=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].Supplier');
+SET @UnitPackageId=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].UnitPackageId');
+SET @Brand=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].Brand');
+SET @LeadTimeDays=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].LeadTimeDays');
+SET @QuantityPerOuter=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].QuantityPerOuter');
+SET @TaxRate=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].TaxRate');
+SET @UnitPrice=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].UnitPrice');
+SET @RecommendedRetailPrice=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].RecommendedRetailPrice');
+SET @TypicalWeightPerUnit=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].TypicalWeightPerUnit');
+SET @CountryOfManufacture=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].CountryOfManufacture');
+SET @Range=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].Range');
+SET @OrderDate=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].OrderDate');
+SET @DeliveryMethod=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].DeliveryMethod');
+SET @ExpectedDeliveryDate=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].ExpectedDeliveryDate');
+SET @SupplierReference=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].SupplierReference');
+SET @OuterPackageId=JSON_VALUE(@jsonInfo,'$.PurchaseOrders[0].OuterPackageId');
+
+SELECT @StockItemName AS StockItemName, @Supplier AS Supplied, @UnitPackageId AS UnitePackageId,
+@OuterPackageId, @Brand, @LeadTimeDays, @QuantityPerOuter, @TaxRate, @UnitPrice, @RecommendedRetailPrice,
+@TypicalWeightPerUnit, @CountryOfManufacture, @Range, @OrderDate, @DeliveryMethod, @ExpectedDeliveryDate, @SupplierReference
+
+INSERT INTO Warehouse.StockItems (StockItemName, SupplierID, UnitPackageID, OuterPackageID, Brand, LeadTimeDays, QuantityPerOuter, TaxRate,
+	UnitPrice, RecommendedRetailPrice, TypicalWeightPerUnit, IsChillerStock, LastEditedBy) 
+	VALUES (@StockItemName, @Supplier, @UnitPackageId, @OuterPackageId, @Brand, @LeadTimeDays, @QuantityPerOuter, @TaxRate,
+	@UnitPrice, @RecommendedRetailPrice, @TypicalWeightPerUnit, 1, 1)
+
+INSERT INTO Purchasing.PurchaseOrders (SupplierID, OrderDate, DeliveryMethodID, ExpectedDeliveryDate, SupplierReference, ContactPersonID,
+	IsOrderFinalized, LastEditedBy) VALUES 
+	(@Supplier, @OrderDate, 1, @ExpectedDeliveryDate, @SupplierReference, 6, 1, 6)
+
+
