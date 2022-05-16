@@ -1,0 +1,10 @@
+ETL vs ELT:
+
+Both ETL (Extract, Transform, Load) do the exact same task, except that the order is different. We need ETL in a big data environment, because our data is assumed to be scattered across different platforms with different interfaces and hence different data-structures.
+
+We Extract data from all those different platforms into one consolidated staging platform in the ETL eco-system. We then go ahead and cleanse, enrich and mask (Transform) before we load it into the Warehouse. By doing so, we comply with standards by masking the data and changing it.
+
+ETL wins over ELT in a number of ways, including ETL being more OLAP ready, meaning, when we choose ETL, our data gets transformed before its deposited (loaded) in to our Warehouse and hence any OLAP/ Data Analysis service that uses it, the data would already be clean and ready-to-use. However, in ELT, we Extract the data from different platforms and Load them into our Warehouse and never technically gets transformed and before we feed it to our OLAP/ analysis, we will have to actually transform it.
+
+Lastly, the processes for ETL are more streamlined and standardized and more widely used/ accepted than ELT.
+
