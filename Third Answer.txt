@@ -1,0 +1,9 @@
+Paas, Iaas, And Saas are some of the most common cloud services/ components available to the enterprises to solve their business problem. There are a number of different aspects through which we can form a hierarchy of these services, one of which is the amount of control/ access we have to the hardware, or in other words, how close are we to the bare-metal.
+
+With more control comes more work, responsibility and hence more access and flexibility, therefore, Iaas being the most accessible and Saas being the least accessible.
+
+Example of Saas are Quickbase or Dropbox, where we do not worry about the underlying infrastructure, security or the storage, we simply want the specific service over the web and we do not bother about the complexities.
+
+On the other hand, Iaas, gives us access to bare-metal over the internet, and except the physical security and up-time of the hardware, the rest is our responsivity. Of course it comes with certain level of support, such as high availability, network security and performance, but when it comes to things that are particular to our application, we are in charge or that.
+
+Lastly, Paas, falls between Iaas and Saas, we are for example provided with an OS or a VM in the cloud but then we are responsible and in control of the rest of it.
